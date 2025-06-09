@@ -79,7 +79,7 @@ entries = [pattern.match(line.strip()) for line in user_input.strip().split('\n'
 parsed_inputs = [(m.group(1), float(m.group(2))) for m in entries]
 
 if not parsed_inputs:
-    st.warning("請輸入正確格式的食材資料，例如：地瓜 150g)
+    st.warning("請輸入正確格式的食材資料，例如：地瓜 150g")
     st.stop()
 
 
