@@ -10,6 +10,12 @@ import json
 firebase_url_total = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
 firebase_url_visitors = "https://nutrition-searcher-default-rtdb.firebaseio.com/visitors.json"
 
+#ICON跟名稱
+st.set_page_config(
+    page_title="QuickNutrients",
+    page_icon="favicon-32x32.png",
+    layout="centered"
+)
 # 🔍 插入 Google Analytics 追蹤碼
 st.components.v1.html("""
 <!-- Google tag (gtag.js) -->
