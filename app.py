@@ -22,35 +22,37 @@ st.components.v1.html("""
 </script>
 """, height=0)
 
-# 產生或讀取使用者 ID
+# 產生或讀取訪客 ID（存在 session 中）
 if "visitor_id" not in st.session_state:
     visitor_id = str(uuid.uuid4())
     st.session_state.visitor_id = visitor_id
 else:
     visitor_id = st.session_state.visitor_id
 
+# 主函式：只記錄第一次出現的使用者
 def check_and_increase_unique_view():
     try:
-        # 取得目前已紀錄的訪客清單
+        # 讀取現有訪客清單
         visitor_db = requests.get(firebase_url_visitors).json() or {}
 
+        # 第一次出現才記錄
         if visitor_id not in visitor_db:
-            # 增加總人次
+            # +1 總瀏覽數
             total = requests.get(firebase_url_total).json() or 0
             total += 1
             requests.put(firebase_url_total, json=total)
 
-            # 新增此訪客 ID 到資料庫
+            # 記下這位訪客
             requests.patch(firebase_url_visitors, json={visitor_id: True})
         else:
+            # 如果出現過，直接抓目前總人次
             total = requests.get(firebase_url_total).json() or 0
 
         return total
     except:
         return "讀取失敗"
-
+      
 view_count = check_and_increase_unique_view()
-
 
 # 讀取 Excel 資料庫
 @st.cache_data
