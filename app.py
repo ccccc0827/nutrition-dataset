@@ -4,6 +4,8 @@ import pandas as pd
 import re
 from io import BytesIO
 import requests
+import json
+import os
 
 # 🔍 插入 Google Analytics 追蹤碼
 st.components.v1.html("""
@@ -16,23 +18,35 @@ st.components.v1.html("""
   gtag('config', 'G-FSB7PV2XCJ');
 </script>
 """, height=0)
-# Step 1️⃣：觸發寫入 timestamp + 加總總瀏覽人次
-if 'view_tracked' not in st.session_state:
+# 🔢 Firebase 計數功能設定
+firebase_url = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
+
+def increase_view_count():
     try:
-        requests.get("https://script.google.com/macros/s/AKfycbyTfUnvszYQl6KPd-mmwdmfPhiUZOFPP5lKBkR0wcYbgFO1Vnl1nnbclz18LyedNJqt9w/exec")
-        st.session_state.view_tracked = True
+        # 讀取目前人次
+        r = requests.get(firebase_url)
+        if r.status_code == 200:
+            current = r.json()
+            current = int(current) if current is not None else 0
+        else:
+            current = 0
+        # 增加 +1
+        new_total = current + 1
+        requests.put(firebase_url, json=new_total)
+        return new_total
     except:
-        st.warning("⚠️ 無法更新瀏覽人次。")
+        return "讀取失敗"
 
-
-# Step 2️⃣：讀取 Google Sheet 的總人次數值
-sheet_url = "https://docs.google.com/spreadsheets/d/11bVvfaXMUfCBzvPjsNYVwvfq4d64EH0HoK2Mj65dta8/gviz/tq?tqx=out:csv"
-
-try:
-    df = pd.read_csv(sheet_url)
-    total_views = int(df.iloc[0, 1])  # B1 儲存格
-except:
-    total_views = "讀取失敗"
+# ✅ 只在 session 第一次執行時計數
+if 'view_tracked' not in st.session_state:
+    view_count = increase_view_count()
+    st.session_state.view_tracked = True
+else:
+    # 若已追蹤，則只讀取不再加總
+    try:
+        view_count = requests.get(firebase_url).json()
+    except:
+        view_count = "讀取失敗"
 
 # 讀取 Excel 資料庫
 @st.cache_data
@@ -124,12 +138,6 @@ if st.button("📊 查詢營養素"):
         file_name="查詢結果.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-# 📊 顯示總瀏覽次數（從 Google Sheet 抓資料）
-try:
-    sheet_url = "https://docs.google.com/spreadsheets/d/11bVvfaXMUfCBzvPjsNYVwvfq4d64EH0HoK2Mj65dta8/gviz/tq?tqx=out:csv"
-    data = pd.read_csv(sheet_url)
-    view_count = len(data)
-    st.markdown(f"<hr style='margin-top:30px;'>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align:center'> 網站總瀏覽人次：<strong>{view_count}</strong> 次</div>", unsafe_allow_html=True)
-except:
-    st.markdown("<div style='text-align:center; color:gray;'>⚠️ 無法載入瀏覽次數</div>", unsafe_allow_html=True)
+# ✅ 顯示在頁面最底部
+st.markdown(f"<hr style='margin-top:30px;'>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center'> 網站總瀏覽人次：<strong>{view_count}</strong> 次</div>", unsafe_allow_html=True)
