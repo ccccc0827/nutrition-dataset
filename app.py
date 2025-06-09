@@ -3,9 +3,12 @@ import streamlit as st
 import pandas as pd
 import re
 from io import BytesIO
+import uuid
 import requests
 import json
-import os
+
+firebase_url_total = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
+firebase_url_visitors = "https://nutrition-searcher-default-rtdb.firebaseio.com/visitors.json"
 
 # 🔍 插入 Google Analytics 追蹤碼
 st.components.v1.html("""
@@ -18,35 +21,36 @@ st.components.v1.html("""
   gtag('config', 'G-FSB7PV2XCJ');
 </script>
 """, height=0)
-# 🔢 Firebase 計數功能設定
-firebase_url = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
 
-def increase_view_count():
+# 產生或讀取使用者 ID
+if "visitor_id" not in st.session_state:
+    visitor_id = str(uuid.uuid4())
+    st.session_state.visitor_id = visitor_id
+else:
+    visitor_id = st.session_state.visitor_id
+
+def check_and_increase_unique_view():
     try:
-        # 讀取目前人次
-        r = requests.get(firebase_url)
-        if r.status_code == 200:
-            current = r.json()
-            current = int(current) if current is not None else 0
+        # 取得目前已紀錄的訪客清單
+        visitor_db = requests.get(firebase_url_visitors).json() or {}
+
+        if visitor_id not in visitor_db:
+            # 增加總人次
+            total = requests.get(firebase_url_total).json() or 0
+            total += 1
+            requests.put(firebase_url_total, json=total)
+
+            # 新增此訪客 ID 到資料庫
+            requests.patch(firebase_url_visitors, json={visitor_id: True})
         else:
-            current = 0
-        # 增加 +1
-        new_total = current + 1
-        requests.put(firebase_url, json=new_total)
-        return new_total
+            total = requests.get(firebase_url_total).json() or 0
+
+        return total
     except:
         return "讀取失敗"
 
-# ✅ 只在 session 第一次執行時計數
-if 'view_tracked' not in st.session_state:
-    view_count = increase_view_count()
-    st.session_state.view_tracked = True
-else:
-    # 若已追蹤，則只讀取不再加總
-    try:
-        view_count = requests.get(firebase_url).json()
-    except:
-        view_count = "讀取失敗"
+view_count = check_and_increase_unique_view()
+
 
 # 讀取 Excel 資料庫
 @st.cache_data
@@ -140,4 +144,4 @@ if st.button("📊 查詢營養素"):
     )
 # ✅ 顯示在頁面最底部
 st.markdown(f"<hr style='margin-top:30px;'>", unsafe_allow_html=True)
-st.markdown(f"<div style='text-align:center'> 網站總瀏覽人次：<strong>{view_count}</strong> 次</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center'> 👀 網站獨立訪客人次：<strong>{view_count}</strong> 位</div>", unsafe_allow_html=True)
