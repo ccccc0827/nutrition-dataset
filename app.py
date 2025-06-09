@@ -104,6 +104,8 @@ for i, (keyword, grams) in enumerate(parsed_inputs):
     selected_samples.append((selected, grams))
 
 # 4️⃣ 查詢按鈕觸發
+st.markdown("### ✅ 請選擇欲查詢的營養素：")
+selected_nutrients = st.multiselect("可選擇多個欄位：", nutrient_cols)
 if st.button("📊 查詢營養素"):
     result_rows = []
 
