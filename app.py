@@ -68,7 +68,7 @@ df = load_data()
 exclude_cols = ['整合編號', '食品分類', '樣品名稱', '內容物描述', '俗名', '廢棄率(%)']
 nutrient_cols = [col for col in df.columns if col not in exclude_cols]
 
-st.title("🥗 DRIs 計算小工具")
+st.title("🥗 營養成分快速查詢小工具")
 
 # 1️⃣ 使用者輸入：多筆食材 + 克數
 st.markdown("### ✏️ 請輸入食材與重量（格式如：地瓜 150g）")
@@ -79,7 +79,7 @@ entries = [pattern.match(line.strip()) for line in user_input.strip().split('\n'
 parsed_inputs = [(m.group(1), float(m.group(2))) for m in entries]
 
 if not parsed_inputs:
-    st.warning("請輸入正確格式的食材資料，例如：地瓜 150g")
+    st.warning("請輸入正確格式的食材資料，例如：地瓜 150g)
     st.stop()
 
 
