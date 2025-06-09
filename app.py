@@ -71,38 +71,36 @@ nutrient_cols = [col for col in df.columns if col not in exclude_cols]
 st.title("🥗 DRIs 計算小工具")
 
 # 1️⃣ 使用者輸入：多筆食材 + 克數
-st.markdown("### 🧠 智慧搜尋建議輸入：")
-sample_names = df["樣品名稱"].dropna().unique().tolist()
+st.markdown("### ✏️ 請輸入食材與重量（格式如：地瓜 150g）")
+user_input = st.text_area("", " ")
 
-num_items = st.number_input("👉 請輸入食材筆數", min_value=1, max_value=10, value=3)
+pattern = re.compile(r"(.+?)\s*(\d+(\.\d+)?)\s*g")
+entries = [pattern.match(line.strip()) for line in user_input.strip().split('\n') if pattern.match(line.strip())]
+parsed_inputs = [(m.group(1), float(m.group(2))) for m in entries]
 
-selected_inputs = []
-for i in range(int(num_items)):
-    cols = st.columns([2, 1])
-    with cols[0]:
-        selected_food = st.selectbox(f"第 {i+1} 筆食材", sample_names, key=f"food_{i}")
-    with cols[1]:
-        grams = st.number_input("重量 (g)", min_value=0.0, value=100.0, key=f"gram_{i}")
-    selected_inputs.append((selected_food, grams))
+if not parsed_inputs:
+    st.warning("請輸入正確格式的食材資料，例如：地瓜 150g")
+    st.stop()
+
 
 
 # 2️⃣ 食材樣品選擇器
 st.markdown("### 🔍 請針對每筆輸入選擇正確樣品：")
 selected_samples = []
 
-for i, (food_name, grams) in enumerate(selected_inputs):
+for i, (keyword, grams) in enumerate(parsed_inputs):
     matched = df[
-        df['樣品名稱'].astype(str).str.contains(food_name, na=False) |
-        df['俗名'].astype(str).str.contains(food_name, na=False)
+        df['樣品名稱'].astype(str).str.contains(keyword, na=False) |
+        df['俗名'].astype(str).str.contains(keyword, na=False)
     ]
     options = matched['樣品名稱'].unique().tolist()
 
     if not options:
-        st.error(f"❌ 查無資料：{food_name}")
+        st.error(f"❌ 查無資料：{keyword}")
         selected_samples.append((None, grams))
         continue
 
-    selected = st.selectbox(f"{food_name}（{grams}g）對應樣品：", options, key=f"select_{i}")
+    selected = st.selectbox(f"{keyword}（{grams}g）對應樣品：", options, key=f"select_{i}")
     selected_samples.append((selected, grams))
 
 # 4️⃣ 查詢按鈕觸發
