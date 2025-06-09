@@ -90,24 +90,20 @@ for i in range(int(num_items)):
 st.markdown("### 🔍 請針對每筆輸入選擇正確樣品：")
 selected_samples = []
 
-for i, (keyword, grams) in enumerate(parsed_inputs):
+for i, (food_name, grams) in enumerate(selected_inputs):
     matched = df[
-        df['樣品名稱'].astype(str).str.contains(keyword, na=False) |
-        df['俗名'].astype(str).str.contains(keyword, na=False)
+        df['樣品名稱'].astype(str).str.contains(food_name, na=False) |
+        df['俗名'].astype(str).str.contains(food_name, na=False)
     ]
     options = matched['樣品名稱'].unique().tolist()
 
     if not options:
-        st.error(f"❌ 查無資料：{keyword}")
+        st.error(f"❌ 查無資料：{food_name}")
         selected_samples.append((None, grams))
         continue
 
-    selected = st.selectbox(f"{keyword}（{grams}g）對應樣品：", options, key=f"select_{i}")
+    selected = st.selectbox(f"{food_name}（{grams}g）對應樣品：", options, key=f"select_{i}")
     selected_samples.append((selected, grams))
-
-# 3️⃣ 營養素選擇
-st.markdown("### ✅ 請選擇欲查詢的營養素：")
-selected_nutrients = st.multiselect("可選擇多個欄位：", nutrient_cols)
 
 # 4️⃣ 查詢按鈕觸發
 if st.button("📊 查詢營養素"):
