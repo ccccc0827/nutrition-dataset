@@ -62,34 +62,29 @@ view_count = check_and_increase_unique_view()
 
 # 讀取 Excel 資料庫
 @st.cache_data
-
-@st.cache_data
 def load_data():
-    # 讀主資料庫
+    # 讀取主資料庫
     df = pd.read_excel("食品營養成分資料庫2024UPDATE2 (1).xlsx", sheet_name="工作表1", header=1)
     df.fillna('', inplace=True)
 
-    # 讀補充資料庫
+    # 讀取補充資料
     df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
-    
-    # 補欄位：將 df1 補齊缺的欄位（依照 df）
+    df1.fillna('', inplace=True)
+
+    # 補欄位：將 df1 缺少的欄位補上
     for col in df.columns:
         if col not in df1.columns:
-            df1[col] = 0  # 補 0 表示沒有這項營養素
+            df1[col] = 0
 
-    # 合併兩份資料
+    # 合併資料
     df_combined = pd.concat([df, df1], ignore_index=True)
     df_combined.fillna(0, inplace=True)
 
+    # 處理欄位型別與空白
+    df_combined['樣品名稱'] = df_combined['樣品名稱'].astype(str).str.strip()
+    df_combined['俗名'] = df_combined['俗名'].astype(str).str.strip()
+
     return df_combined
-
-df = load_data()
-st.write(df[df['樣品名稱'].astype(str).str.contains("五春米")])
-
-
-# 排除非營養素欄位（保留所有欄位用於選擇營養素）
-exclude_cols = ['整合編號', '食品分類', '樣品名稱', '內容物描述', '俗名', '廢棄率(%)']
-nutrient_cols = [col for col in df.columns if col not in exclude_cols]
 
 st.title("🥗 營養成分快速查詢小工具")
 
@@ -107,7 +102,6 @@ if not parsed_inputs:
 
 
 
-# 2️⃣ 食材樣品選擇器
 # 2️⃣ 食材樣品選擇器
 st.markdown("### 🔍 請針對每筆輸入選擇正確樣品：")
 selected_samples = []
