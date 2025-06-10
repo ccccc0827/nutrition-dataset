@@ -106,13 +106,15 @@ if not parsed_inputs:
 
 
 # 2️⃣ 食材樣品選擇器
+# 2️⃣ 食材樣品選擇器
 st.markdown("### 🔍 請針對每筆輸入選擇正確樣品：")
 selected_samples = []
 
 for i, (keyword, grams) in enumerate(parsed_inputs):
+    keyword = keyword.strip()  # ✅ 去除前後空白
     matched = df[
-        df['樣品名稱'].astype(str).str.contains(keyword, na=False) |
-        df['俗名'].astype(str).str.contains(keyword, na=False)
+        df['樣品名稱'].astype(str).str.contains(keyword, case=False, na=False) |
+        df['俗名'].astype(str).str.contains(keyword, case=False, na=False)
     ]
     options = matched['樣品名稱'].unique().tolist()
 
