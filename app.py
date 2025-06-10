@@ -63,10 +63,25 @@ view_count = check_and_increase_unique_view()
 # 讀取 Excel 資料庫
 @st.cache_data
 
+@st.cache_data
 def load_data():
+    # 讀主資料庫
     df = pd.read_excel("食品營養成分資料庫2024UPDATE2 (1).xlsx", sheet_name="工作表1", header=1)
     df.fillna('', inplace=True)
-    return df
+
+    # 讀補充資料庫
+    df1 = pd.read_excel("其他資料.xlsx", sheet_name="工作表1", header=1)
+    
+    # 補欄位：將 df1 補齊缺的欄位（依照 df）
+    for col in df.columns:
+        if col not in df1.columns:
+            df1[col] = 0  # 補 0 表示沒有這項營養素
+
+    # 合併兩份資料
+    df_combined = pd.concat([df, df1], ignore_index=True)
+    df_combined.fillna(0, inplace=True)
+
+    return df_combined
 
 df = load_data()
 
