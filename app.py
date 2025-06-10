@@ -70,12 +70,12 @@ def load_data():
     # 讀取補充資料
     df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
     df1.fillna('', inplace=True)
-    st.write("✅ 五春米是否存在？", df[df['樣品名稱'].astype(str).str.contains("五春米", na=False)])
+    
     # 補欄位：將 df1 缺少的欄位補上
     for col in df.columns:
         if col not in df1.columns:
             df1[col] = 0
-
+    st.write("✅ 五春米是否存在？", df[df['樣品名稱'].astype(str).str.contains("五春米", na=False)])
     # 合併資料
     df_combined = pd.concat([df, df1], ignore_index=True)
     df_combined.fillna(0, inplace=True)
