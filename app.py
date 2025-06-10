@@ -75,7 +75,6 @@ def load_data():
     for col in df.columns:
         if col not in df1.columns:
             df1[col] = 0
-    st.write("✅ 五春米是否存在？", df[df['樣品名稱'].astype(str).str.contains("五春米", na=False)])
     # 合併資料
     df_combined = pd.concat([df, df1], ignore_index=True)
     df_combined.fillna(0, inplace=True)
@@ -85,6 +84,16 @@ def load_data():
     df_combined['俗名'] = df_combined['俗名'].astype(str).str.strip()
 
     return df_combined
+
+# 讀取資料
+df = load_data()
+
+# 🔍 確認五春米是否被讀進來（可移除）
+st.write("✅ 五春米是否存在？", df[df['樣品名稱'].str.contains("五春米", na=False)])
+
+# 排除非營養素欄位（保留所有欄位用於選擇營養素）
+exclude_cols = ['整合編號', '食品分類', '樣品名稱', '內容物描述', '俗名', '廢棄率(%)']
+nutrient_cols = [col for col in df.columns if col not in exclude_cols]
 
 st.title("🥗 營養成分快速查詢小工具")
 
@@ -99,8 +108,6 @@ parsed_inputs = [(m.group(1), float(m.group(2))) for m in entries]
 if not parsed_inputs:
     st.warning("請輸入正確格式的食材資料，例如：地瓜 150g")
     st.stop()
-
-
 
 # 2️⃣ 食材樣品選擇器
 st.markdown("### 🔍 請針對每筆輸入選擇正確樣品：")
