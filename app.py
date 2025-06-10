@@ -63,7 +63,6 @@ view_count = check_and_increase_unique_view()
 # 讀取 Excel 資料庫
 @st.cache_data
 def load_data():
-    st.write("✅ 五春米是否存在？", df[df['樣品名稱'].astype(str).str.contains("五春米", na=False)])
     # 讀取主資料庫
     df = pd.read_excel("食品營養成分資料庫2024UPDATE2 (1).xlsx", sheet_name="工作表1", header=1)
     df.fillna('', inplace=True)
@@ -71,7 +70,7 @@ def load_data():
     # 讀取補充資料
     df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
     df1.fillna('', inplace=True)
-
+    st.write("✅ 五春米是否存在？", df[df['樣品名稱'].astype(str).str.contains("五春米", na=False)])
     # 補欄位：將 df1 缺少的欄位補上
     for col in df.columns:
         if col not in df1.columns:
