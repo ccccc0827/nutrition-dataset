@@ -84,6 +84,8 @@ def load_data():
     return df_combined
 
 df = load_data()
+st.write(df[df['樣品名稱'].astype(str).str.contains("五春米")])
+
 
 # 排除非營養素欄位（保留所有欄位用於選擇營養素）
 exclude_cols = ['整合編號', '食品分類', '樣品名稱', '內容物描述', '俗名', '廢棄率(%)']
