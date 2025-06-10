@@ -70,7 +70,7 @@ def load_data():
     df.fillna('', inplace=True)
 
     # 讀補充資料庫
-    df1 = pd.read_excel("其他資料.xlsx", sheet_name="工作表1", header=1)
+    df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
     
     # 補欄位：將 df1 補齊缺的欄位（依照 df）
     for col in df.columns:
