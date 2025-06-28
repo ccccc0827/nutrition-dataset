@@ -63,26 +63,34 @@ view_count = check_and_increase_unique_view()
 # 讀取 Excel 資料庫
 @st.cache_data
 def load_data():
-    # 主資料庫
+    # 讀取主資料庫
     df = pd.read_excel("食品營養成分資料庫2024UPDATE2 (1).xlsx", sheet_name="工作表1", header=1)
     df.fillna('', inplace=True)
     df['資料來源'] = '主資料庫'
 
-    # 其他食材資料庫
+    # 讀取其他食材
     df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
     df1.fillna('', inplace=True)
     df1['資料來源'] = '其他食材'
 
-    # 補欄位：將 df1 缺少的欄位補上
+    # 🔍 對齊欄位（補上主資料庫有但 df1 沒有的欄位）
     for col in df.columns:
         if col not in df1.columns:
             df1[col] = 0
+
+    # ➕ 若 df1 多出欄位也補到主資料庫（防止少欄問題）
+    for col in df1.columns:
+        if col not in df.columns:
+            df[col] = 0
+
+    # 🔁 重新排序欄位一致
+    df1 = df1[df.columns]
 
     # 合併
     df_combined = pd.concat([df, df1], ignore_index=True)
     df_combined.fillna(0, inplace=True)
 
-    # 處理欄位型別與空白
+    # 🚨 強制轉成文字避免匹配失效
     df_combined['樣品名稱'] = df_combined['樣品名稱'].astype(str).str.strip()
     df_combined['俗名'] = df_combined['俗名'].astype(str).str.strip()
 
