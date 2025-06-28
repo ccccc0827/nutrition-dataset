@@ -69,7 +69,7 @@ def load_data():
     df['資料來源'] = '主資料庫'
 
     # 讀取其他食材
-    df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=1)
+    df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=0)
     df1.fillna('', inplace=True)
     df1['資料來源'] = '其他食材'
 
