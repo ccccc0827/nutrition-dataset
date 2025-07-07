@@ -178,6 +178,3 @@ if st.button("📊 查詢營養素"):
         file_name="查詢結果.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-# ✅ 顯示在頁面最底部
-st.markdown(f"<hr style='margin-top:30px;'>", unsafe_allow_html=True)
-st.markdown(f"<div style='text-align:center'> 👀 網站獨立訪客人次：<strong>{view_count}</strong> 位</div>", unsafe_allow_html=True)
