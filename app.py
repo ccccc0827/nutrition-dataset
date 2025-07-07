@@ -63,14 +63,14 @@ view_count = check_and_increase_unique_view()
 # 讀取 Excel 資料庫
 def load_data():
     # 讀取主資料庫
-    df = pd.read_excel("食品營養成分資料庫2024UPDATE2 (1).xlsx", sheet_name="工作表1", header=1)
+    df = pd.read_excel("食品營養成分資料庫2024UPDATE.xlsx", sheet_name="工作表1", header=1)
     df.fillna('', inplace=True)
     df['資料來源'] = '主資料庫'
 
     # 讀取其他食材
-    df1 = pd.read_excel("其他食材.xlsx", sheet_name="工作表1", header=0)
+    df1 = pd.read_excel("其餘食材.xlsx", sheet_name="工作表1", header=0)
     df1.fillna('', inplace=True)
-    df1['資料來源'] = '其他食材'
+    df1['資料來源'] = '其餘食材'
 
     # 🔍 對齊欄位（補上主資料庫有但 df1 沒有的欄位）
     for col in df.columns:
