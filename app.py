@@ -4,11 +4,11 @@ import pandas as pd
 import re
 from io import BytesIO
 import uuid
-import requests
-import json
+#import requests
+#import json
 
-firebase_url_total = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
-firebase_url_visitors = "https://nutrition-searcher-default-rtdb.firebaseio.com/visitors.json"
+#firebase_url_total = "https://nutrition-searcher-default-rtdb.firebaseio.com/views/total.json"
+#firebase_url_visitors = "https://nutrition-searcher-default-rtdb.firebaseio.com/visitors.json"
 
 #ICON跟名稱
 st.set_page_config(
@@ -36,29 +36,9 @@ else:
     visitor_id = st.session_state.visitor_id
 
 # 主函式：只記錄第一次出現的使用者
-def check_and_increase_unique_view():
-    try:
-        # 讀取現有訪客清單
-        visitor_db = requests.get(firebase_url_visitors).json() or {}
+# 👋 暫時不用 Firebase 的訪客紀錄
+# view_count = "暫無計算"
 
-        # 第一次出現才記錄
-        if visitor_id not in visitor_db:
-            # +1 總瀏覽數
-            total = requests.get(firebase_url_total).json() or 0
-            total += 1
-            requests.put(firebase_url_total, json=total)
-
-            # 記下這位訪客
-            requests.patch(firebase_url_visitors, json={visitor_id: True})
-        else:
-            # 如果出現過，直接抓目前總人次
-            total = requests.get(firebase_url_total).json() or 0
-
-        return total
-    except:
-        return "讀取失敗"
-      
-view_count = check_and_increase_unique_view()
 
 # 讀取 Excel 資料庫
 def load_data():
